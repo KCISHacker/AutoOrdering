@@ -30,6 +30,7 @@ python main.py
 ## Schedule
 
 ***Notice that your device must be turned on during the time it is scheduled to run*** 
+
 ***It is suggested to host it on a server***
 
 ### On Windows
