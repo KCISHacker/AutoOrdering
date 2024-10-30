@@ -35,6 +35,7 @@ python main.py
 
 ### On Windows
 Use Task Scheduler(`taskschd.msc`) to schedule running
+
 For more info anout Task Scheduler, see [Wikipedia](https://en.m.wikipedia.org/wiki/Windows_Task_Scheduler)
 
 ### On Linux, BSD, and other Unix-like system
