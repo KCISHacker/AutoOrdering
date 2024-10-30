@@ -1,0 +1,25 @@
+orders:
+- id: 'MY_ID' # in string
+  name: example # for debugging and logging; will not effect program
+  password: MY_PASSWORD
+  lunch:
+  - cafeteria: 1 # specific a cafe (match all if not set)
+    match:
+      - regex: i want this # match regular expression
+      - regex: with this
+  - cafeteria: 2 # fallback to the next one if previous one didnt match
+    match:
+      - regex: second choice
+  - cafeteria: 1
+    match:
+      - regex: third one
+    random: true # select one randomly between matched meals
+  - cafeteria: 1
+    match:
+      - regex: fourth choice
+      - regex: i dont want this
+      - not: true
+    random: true # it will select the first one if random set to false (or unset)
+  - cafeteria: 1
+    random: true # if no meal matches, select one randomly from 1st cafe
+  lunch: [] # lunch or dinner can be unset
