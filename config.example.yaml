@@ -1,3 +1,7 @@
+crawl_every: true # decide if the program crawls meal list for every user or crawls for the fisrt user and the rest follows this list
+# This is useful when users have the same meal lists, and increases speed. Error may occurs when doing for users that have different meal lists
+# default: true
+
 orders:
 - id: 'MY_ID' # in string
   name: example # for debugging and logging; will not effect program
@@ -7,7 +11,7 @@ orders:
     match:
       - regex: i want this # match regular expression
       - regex: with this
-  - cafeteria: 2 # fallback to the next one if previous one didnt match
+  - cafeteria: 2 # go to the next one if previous one didnt match
     match:
       - regex: second choice
   - cafeteria: 1
@@ -18,8 +22,8 @@ orders:
     match:
       - regex: fourth choice
       - regex: i dont want this
-      - not: true
+        not: true
     random: true # it will select the first one if random set to false (or unset)
   - cafeteria: 1
     random: true # if no meal matches, select one randomly from 1st cafe
-  lunch: [] # lunch or dinner can be unset
+  dinner: [] # lunch or dinner can be unset

@@ -26,6 +26,7 @@ Now you can run the program by:
 ```bash
 python main.py
 ```
+For how to configure, check example file [config.example.yaml](./config.example.yaml)
 
 ## Schedule
 
