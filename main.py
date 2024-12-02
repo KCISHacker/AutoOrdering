@@ -42,17 +42,25 @@ if crawl_every is None:
 
 if not crawl_every:
     print(
-        "WARNING: Crawling is off, all meal lists will be as crawled from the first account"
+        "WARNING: crawl_every is set to false, all orders will match list crawled from the first order"
     )
+
+clear_existing = config.get("clear_existing")
+if clear_existing is None:
+    clear_existing = False
+if clear_existing:
+    print("clear_existing set to true")
+
+def is_any_remaining(meal_to_check):
+    if meal_to_check.get("id") is None or meal_to_check.get("remaining") == "0":
+        print(
+            f"{meal_to_check.get('type')} {meal_to_check.get('chinese_name')}"
+            f" sold out"
+        )
+        return False
 
 
 def does_hit_rule(rules_to_check, meal_to_check, print_hit=True):
-    if meal_to_check.get("id") is None or meal_to_check.get("remaining") == "0":
-        # print(
-        #     f"{meal_to_check.get('type')} {meal_to_check.get('id')} - {meal_to_check.get('chinese_name')}"
-        #     f" sold out"
-        # )
-        return False
     if not (
         rules_to_check.get("cafeteria") is None
         or rules_to_check.get("cafeteria") == meal_to_check.get("cafeteria")
@@ -64,6 +72,7 @@ def does_hit_rule(rules_to_check, meal_to_check, print_hit=True):
     )
     # print(meal_description)
     # print()
+
     matches = rules_to_check.get("match")
 
     if matches is None:
@@ -91,14 +100,14 @@ def does_hit_rule(rules_to_check, meal_to_check, print_hit=True):
         )
     return True
 
-
-def get_hit_rule(rules_to_check, meals_to_check, print_hit=True):
+def match_meal(rules_to_check, meals_to_check, print_hit=True):
     if rules_to_check.get("random") is not None and rules_to_check.get("random"):
         return get_random_hit_meal(meals_to_check, rules_to_check, print_hit)
     for meal_to_check in meals_to_check:
-        if does_hit_rule(rules_to_check, meal_to_check, print_hit):
+        if does_hit_rule(
+            rules_to_check, meal_to_check, print_hit
+        ) and not is_any_remaining(meal_to_check):
             return meal_to_check
-
 
 def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
     hit_meals = []
@@ -107,7 +116,9 @@ def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
         hit_meals = meals_to_proceed
     else:
         for single_meal in meals_to_proceed:
-            if does_hit_rule(match_rule, single_meal, False):
+            if does_hit_rule(match_rule, single_meal, False) and not is_any_remaining(
+                single_meal
+            ):
                 hit_meals.append(single_meal)
 
     if len(hit_meals) == 0:
@@ -124,8 +135,7 @@ def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
 
     return random_meal
 
-
-meals = None
+meal_list = None
 
 print()
 for target in target_list:
@@ -134,11 +144,13 @@ for target in target_list:
     kcisorder.login(target.get("id"), target.get("password"), session)
     print("Logged in")
 
-    if crawl_every or meals is None:
-        print("Getting meals")
-        meals = kcisorder.get_meal(session)
+    clear_existing_local = target.get('clear_existing')
 
-    if meals is None:
+    if crawl_every or meal_list is None:
+        print("Getting meals")
+        meal_list = kcisorder.get_meals(session)
+
+    if meal_list is None:
         print(
             "Failed to get meal list. Pls check your internet connection and credentials! Skipping this order"
         )
@@ -146,23 +158,25 @@ for target in target_list:
     # print(json.dumps(meals))
     print("Matching meals")
     meals_to_order = []
-    for day in meals:
-        for lunch_dinner_i in range(len(day)):
-            lunch_dinner = day[lunch_dinner_i]
-            if (lunch_dinner is None) or (len(lunch_dinner) == 0):
+    for day in meal_list:  # day structure: {"lunch": [], "dinner": []}
+        for key, meals in day.items():
+            if (meals is None) or (len(meals) == 0):
                 continue
             flag_done_finding_meal = False
-            rules = target.get("lunch") if lunch_dinner_i == 0 else target.get("dinner")
+            rules = target.get(key)
             for rule in rules:
-                hit_meal = get_hit_rule(rule, lunch_dinner)
-                if hit_meal is not None and len(hit_meal) != 0:
+                meal_hit = match_meal(rule, meals)
+                if meal_hit is not None and len(meal_hit) != 0:
                     flag_done_finding_meal = True
-                    meals_to_order.append(hit_meal)
-
+                    meals_to_order.append(meal_hit)
                 if flag_done_finding_meal:
                     break
             if not flag_done_finding_meal:
                 print("No match, skips")
+
+    if clear_existing_local or (clear_existing_local is None and clear_existing):
+        print("Clearing existing orders")
+        kcisorder.clear_meals_ordered(session)
 
     print("Submitting the following: ")
     print(json.dumps(meals_to_order))

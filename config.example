@@ -1,0 +1,44 @@
+# Example configuration file
+
+crawl_every: true # decide if the program crawls meal list for every user or crawls for the fisrt user and the rest follows this list
+# This is useful and speeds the program when users have the same meal lists.
+# Error may occurs when doing for users that have different meal lists.
+# default: true
+clear_existing: false # decide if the program existing orders before ordering
+# default: false
+
+orders:
+- id: 'MY_ID' # in string
+  name: example # for debugging and logging; will not effect program
+  password: MY_PASSWORD
+  lunch:
+  - cafeteria: 1 # specific a cafe (match all if not set)
+    match:
+      - regex: i want this # match regular expression
+      - regex: with this
+  - cafeteria: 2 # go to the next one if previous one didn't match
+    match:
+      - regex: second choice
+  - cafeteria: 1
+    match:
+      - regex: third one
+    random: true # select one randomly between matched meals
+  - cafeteria: 1
+    match:
+      - regex: fourth choice
+      - regex: i dont want this
+        not: true # do not select
+    random: false # select the first one if random set to false (or unset)
+  - cafeteria: 1
+    random: true # if no meal matched, select one randomly from 1st cafe
+  dinner: [] # lunch or dinner can be unset (do not proceed)
+- id: 'ANOTHER_ID' # another account
+  name: :)
+  password: '114514' # string
+  clear_existing: true # clear_existing can be locally overrided
+  lunch:
+  - cafeteria: 2
+    random: true
+  dinner:
+  - cafeteria: 1
+    random: true
