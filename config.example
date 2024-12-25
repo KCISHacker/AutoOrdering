@@ -14,20 +14,20 @@ orders:
   lunch:
   - cafeteria: 1 # specific a cafe (match all if not set)
     match:
-      - regex: i want this # match regular expression
-      - regex: with this
+    - regex: i want this # match regular expression
+    - regex: with this
   - cafeteria: 2 # go to the next one if previous one didn't match
     match:
-      - regex: second choice
+    - regex: second choice
   - cafeteria: 1
     match:
-      - regex: third one
+    - regex: third one
     random: true # select one randomly between matched meals
   - cafeteria: 1
     match:
-      - regex: fourth choice
-      - regex: i dont want this
-        not: true # do not select
+    - regex: fourth choice
+    - regex: i dont want this
+      not: true # do not select
     random: false # select the first one if random set to false (or unset)
   - cafeteria: 1
     random: true # if no meal matched, select one randomly from 1st cafe
@@ -42,3 +42,15 @@ orders:
   dinner:
   - cafeteria: 1
     random: true
+- id: 'ABC'
+  namd: ABC
+  password: 'yeah'
+  follow:
+  - 'ANOTHER_ID' # follow someone (clone someone's orders)
+  follow_by_name: # follow by name
+  - :)
+  - example # follow multiple ppl
+  dinner:
+  - cafeteria: 1 # you can still add your own orders while following others
+    match:
+    - regex: meat

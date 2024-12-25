@@ -45,11 +45,21 @@ if not crawl_every:
         "WARNING: crawl_every is set to false, all orders will match list crawled from the first order"
     )
 
+# preprocess arraies, this is for 'follow'
+target_list_key_as_name = {}
+target_list_key_as_id = {}
+for target in target_list:
+    target_list_key_as_name[target["name"]] = target
+    target_list_key_as_id[target["id"]] = target
+
 clear_existing = config.get("clear_existing")
 if clear_existing is None:
     clear_existing = False
 if clear_existing:
-    print("clear_existing set to true")
+    print(
+        "WARNING: clear_existing is set to true, meals that are already been ordered will be cleared"
+    )
+
 
 def is_any_remaining(meal_to_check):
     if meal_to_check.get("id") is None or meal_to_check.get("remaining") == "0":
@@ -100,6 +110,7 @@ def does_hit_rule(rules_to_check, meal_to_check, print_hit=True):
         )
     return True
 
+
 def match_meal(rules_to_check, meals_to_check, print_hit=True):
     if rules_to_check.get("random") is not None and rules_to_check.get("random"):
         return get_random_hit_meal(meals_to_check, rules_to_check, print_hit)
@@ -108,6 +119,7 @@ def match_meal(rules_to_check, meals_to_check, print_hit=True):
             rules_to_check, meal_to_check, print_hit
         ) and not is_any_remaining(meal_to_check):
             return meal_to_check
+
 
 def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
     hit_meals = []
@@ -135,6 +147,7 @@ def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
 
     return random_meal
 
+
 meal_list = None
 
 print()
@@ -144,11 +157,30 @@ for target in target_list:
     kcisorder.login(target.get("id"), target.get("password"), session)
     print("Logged in")
 
-    clear_existing_local = target.get('clear_existing')
+    clear_existing_local = target.get("clear_existing")
 
     if crawl_every or meal_list is None:
         print("Getting meals")
         meal_list = kcisorder.get_meals(session)
+
+    rules = {}
+    rules["lunch"] = target.get("lunch")
+    rules["dinner"] = target.get("dinner")
+
+    if target.get("follow") is not None:
+        for following in target.get("follow"):
+            try:
+                rules["lunch"] += target_list_key_as_id[following]["lunch"]
+                rules["dinner"] += target_list_key_as_id[following]["dinner"]
+            except KeyError:
+                print(f"WARNING: cannot find rules for {following}")
+    if target.get("follow_by_name") is not None:
+        for following in target.get("follow_by_name"):
+            try:
+                rules["lunch"] += target_list_key_as_name[following]["lunch"]
+                rules["dinner"] += target_list_key_as_name[following]["dinner"]
+            except KeyError:
+                print(f"WARNING: cannot find rules for {following}")
 
     if meal_list is None:
         print(
@@ -160,11 +192,10 @@ for target in target_list:
     meals_to_order = []
     for day in meal_list:  # day structure: {"lunch": [], "dinner": []}
         for key, meals in day.items():
-            if (meals is None) or (len(meals) == 0):
+            if meals is None or len(meals) == 0:
                 continue
             flag_done_finding_meal = False
-            rules = target.get(key)
-            for rule in rules:
+            for rule in rules[key]:
                 meal_hit = match_meal(rule, meals)
                 if meal_hit is not None and len(meal_hit) != 0:
                     flag_done_finding_meal = True
