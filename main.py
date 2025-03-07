@@ -12,7 +12,7 @@ print()
 print("Loading config file")
 if not os.path.exists("config.yaml"):
     print(
-        "Config file not found. Pls create a config file under this path named config.json"
+        "Config file not found. Pls create a config file under this path named config.yaml"
     )
     exit(1)
 
