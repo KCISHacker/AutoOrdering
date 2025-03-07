@@ -36,6 +36,8 @@ if target_list is None:
     print("No orders found in config file")
     exit(1)
 
+print(f"Successfully loaded {len(target_list)} orders")
+
 crawl_every = config.get("crawl_every")
 if crawl_every is None:
     crawl_every = True
@@ -164,8 +166,8 @@ for target in target_list:
         meal_list = kcisorder.get_meals(session)
 
     rules = {}
-    rules["lunch"] = target.get("lunch")
-    rules["dinner"] = target.get("dinner")
+    rules["lunch"] = target.get("lunch") or []
+    rules["dinner"] = target.get("dinner") or []
 
     if target.get("follow") is not None:
         for following in target.get("follow"):
