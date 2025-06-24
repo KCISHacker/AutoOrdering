@@ -33,3 +33,7 @@ For how to configure, check example file [config.yaml.example](./config.yaml.exa
 ***Notice that your device must be turned on during the time scheduled*** 
 
 ***It is suggested to host it on a server***
+
+## Contribution
+
+**Contributions are welcome!!** I rlly suck at python someone pls help me
