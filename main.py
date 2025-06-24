@@ -69,7 +69,7 @@ def is_any_remaining(meal_to_check):
             f"{meal_to_check.get('type')} {meal_to_check.get('chinese_name')}"
             f" sold out"
         )
-        return False
+        return True
 
 
 def does_hit_rule(rules_to_check, meal_to_check, print_hit=True):
@@ -117,9 +117,9 @@ def match_meal(rules_to_check, meals_to_check, print_hit=True):
     if rules_to_check.get("random") is not None and rules_to_check.get("random"):
         return get_random_hit_meal(meals_to_check, rules_to_check, print_hit)
     for meal_to_check in meals_to_check:
-        if does_hit_rule(
-            rules_to_check, meal_to_check, print_hit
-        ) and not is_any_remaining(meal_to_check):
+        if does_hit_rule(rules_to_check, meal_to_check, print_hit) and is_any_remaining(
+            meal_to_check
+        ):
             return meal_to_check
 
 
@@ -130,7 +130,7 @@ def get_random_hit_meal(meals_to_proceed, match_rule, print_hit=True):
         hit_meals = meals_to_proceed
     else:
         for single_meal in meals_to_proceed:
-            if does_hit_rule(match_rule, single_meal, False) and not is_any_remaining(
+            if does_hit_rule(match_rule, single_meal, False) and is_any_remaining(
                 single_meal
             ):
                 hit_meals.append(single_meal)

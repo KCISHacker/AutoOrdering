@@ -6,4 +6,3 @@ with open("config.json", "r") as f:
 
 with open("config.yaml", "w") as f:
     yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
-
